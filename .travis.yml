@@ -1,23 +1,24 @@
 sudo: required
+
 services:
   - docker
 
 before_install:
-  - docker build -t sharad-s/react-test -f ./client/Dockerfile.dev ./client
+  - docker build -t "$DOCKER_ID"/react-client-test -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run -e CI=true sharad-s/react-test npm test
+  - docker run "$DOCKER_ID"/react-client-test npm test -- --coverage
 
 after_success:
-  # Build production version of containers
-  - docker build -t sharad-s/multi-client ./client
-  - docker build -t sharad-s/multi-nginx ./nginx
-  - docker build -t sharad-s/multi-server ./server
-  - docker build -t sharad-s/multi-worker ./worker
-  # Log in to Docker CLI
+  # Build images
+  - docker build -t "$DOCKER_ID"/complex-client ./client
+  - docker build -t "$DOCKER_ID"/complex-nginx -f ./nginx/Dockerfile.dev ./nginx
+  - docker build -t "$DOCKER_ID"/complex-server ./server
+  - docker build -t "$DOCKER_ID"/complex-worker ./worker
+  # Login into docker hub
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-  # Take those images and push them to Dockerhub
-  - docker push sharad-s/multi-client
-  - docker push sharad-s/multi-nginx
-  - docker push sharad-s/multi-server
-  - docker push sharad-s/multi-worker
+  # push images to docker hub
+  - docker push "$DOCKER_ID"/complex-client
+  - docker push "$DOCKER_ID"/complex-nginx
+  - docker push "$DOCKER_ID"/complex-server
+  - docker push "$DOCKER_ID"/complex-worker
