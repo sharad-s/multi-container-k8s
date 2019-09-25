@@ -1,0 +1,23 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t sharad-s/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true sharad-s/react-test npm test
+
+after_success:
+  # Build production version of containers
+  - docker build -t sharad-s/multi-client ./client
+  - docker build -t sharad-s/multi-nginx ./nginx
+  - docker build -t sharad-s/multi-server ./server
+  - docker build -t sharad-s/multi-worker ./worker
+  # Log in to Docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take those images and push them to Dockerhub
+  - docker push sharad-s/multi-client
+  - docker push sharad-s/multi-nginx
+  - docker push sharad-s/multi-server
+  - docker push sharad-s/multi-worker
