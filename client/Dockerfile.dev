@@ -1,0 +1,17 @@
+#Specify a base image
+FROM node:alpine
+
+#Set WORKDIR
+WORKDIR /app
+
+#COPY package.json for dependenceis
+COPY ./package.json ./
+
+# Install some dependencies
+RUN npm install
+
+#COPY the rest of the files over
+COPY . .
+
+#Run default command
+CMD ["npm", "start"]
