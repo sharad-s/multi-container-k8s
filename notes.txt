@@ -1,0 +1,43 @@
+docker-compose afaik is used only in practice for development purposes. 
+
+Nginx has to be deployed in front of all containers as a proxy router, as well as packaged inside the Client container 
+The Nginx Config is not covered in depth in this course and must be learned separately.
+
+Pushing to dockerhub requires that you tag the image. The image can be tagged with the format "<DOCKERID>/<NICKNAME>" or just "<NICKNAME>".
+If you provide an incorrect DOCKERID, the push will fail. If you provide no DOCKERID, your image tag will automatically be prepended with your DOCKERID. 
+
+.travis.yml can be janky. If pushing to Dockerhub via travis, you must login via the CLI. Use Travis's encrypted environment variables to store your Docker credentials. 
+
+Dockerrrun.aws.json is required for multi-container deployments to AWS. It serves the same purpose as docker-compose, except tells AWS how to deploy multiple containers using docker. 
+
+Elastic Container Service (ECS) Task Definitions tell AWS how to run a docker file. We write Container deifnitions.     
+ - https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html
+
+
+Dockerrun.aws.json  
+    - you're basically rewriting docker-compose in AWS's preferred format. 
+    - essential flag true means if one container crashes in the array, the other ones would be spun down too.  
+     - at least one service usually must be marked essential. for this project it's NginX. 
+    - port maps must be an object
+    - links property allows for networking between containers. docker-compose took care of it for you but that's not the case with AWS. this property allows that functionality to occur. 
+    - the "link" property uses specificially the "name" property of the other containers and does not use the "hostname" property.
+    - however container logic like nginx config uses the "hostname" property. this needs more explanation as to why. 
+
+
+Postgres and Redis?
+https://www.udemy.com/docker-and-kubernetes-the-complete-guide/learn/lecture/11437370#questions
+ - Redis = AWS Elsatic Cache
+ - PG = AWS RDS 
+ AWS EC and RDS are Decoupled - you can move the rest of your app elsewhere and still continue to use RDS and EC
+ https://blog.hasura.io/instant-graphql-on-aws-rds-1edfb85b5985/
+ 
+
+Security Groups - 
+Connecting EB to RDS and EC requires specialized links created inside AWS. This is called a security group
+Lets you create rules to allow AWS services to talk to each other if they're in the same security group
+Create security group and allow traffic from any other instance within this security group. Once you create the security group, apply it to all instances of EB, EC, and RDS
+
+
+You set EB ENV Variables through the EB settings - When you set ENV Variables they get automatically added to every container running inside that EB instance. 
+
+Updating Travis to deploy the multi-container app to EC
