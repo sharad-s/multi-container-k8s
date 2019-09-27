@@ -58,8 +58,17 @@ Finishing THoughts
     - Services like Postgres (DB) and Redis (Caching) are offered through AWS services (RDS and ElastiCache). 
     - Utilize ENV variables in your source code so that you can easily connect to whatever service you want in dev/prod later. 
     - Setting ENV vars in the AWS Elastic Beanstalk instance you create lets you swap services for DB/Caching (Postgres and Redis) without touching any source code. 
- - In DEV, docker-compose handles all networking between services. AWS makes use of "security groups" and rules to explicitly define networking between services. 
- - 
+ - In DEV, docker-compose handles all networking between services. AWS makes use of "security groups" and rules to explicitly define networking between services.
+  
+ - AWS Notes
+  - Instantiate RDS for Postgres, ElastiCache for Redis, and EB as a web-app multi-container Docker instance for the app itself
+  - Set up the VPC Security Group, add rule to allow communication between services in gropu. Attach Security group to all 3 things. 
+  - Write Dockerrun.aws.json in your app. It's like docker-compose for AWS. 
+  - Create new IAM user to access Elastic Beanstalk. Copy User API Keys to Travis for deployment. 
+  - Set ENV Variables for EB. Your Postgres and Redis instance will have hostnames generated for you by AWS.
+    These need to be set in ElasticBeanstalk to facilitate comms by your app to those instances
+     - Then deployment should work 
+
 
 
  Bugs encountered:
