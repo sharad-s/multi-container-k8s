@@ -22,6 +22,7 @@ Dockerrun.aws.json
     - links property allows for networking between containers. docker-compose took care of it for you but that's not the case with AWS. this property allows that functionality to occur. 
     - the "link" property uses specificially the "name" property of the other containers and does not use the "hostname" property.
     - however container logic like nginx config uses the "hostname" property. this needs more explanation as to why. 
+    - Must add "memory" property otherwise deployment will fail. Default starting point is 128
 
 
 Postgres and Redis?
@@ -37,7 +38,13 @@ Connecting EB to RDS and EC requires specialized links created inside AWS. This 
 Lets you create rules to allow AWS services to talk to each other if they're in the same security group
 Create security group and allow traffic from any other instance within this security group. Once you create the security group, apply it to all instances of EB, EC, and RDS
 
+ENV Variables
+You set EB ENV Variables through the EB settings dashboard 
+When you set ENV Variables they get automatically added to every container running inside that EB instance. 
+For some reason these are stored plaintext and anyone with access to this account can see them
 
-You set EB ENV Variables through the EB settings - When you set ENV Variables they get automatically added to every container running inside that EB instance. 
+Travis deploying a multi-container app to EC
+- Generate a new user through IAM. Give it programmatic access to .
+- Store the Access Key and Secret Key as ENV vars in Travis CI. Travis will use these keys to deploy the application to EB.
+- 
 
-Updating Travis to deploy the multi-container app to EC
