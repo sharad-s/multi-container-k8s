@@ -48,3 +48,28 @@ Travis deploying a multi-container app to EC
 - Store the Access Key and Secret Key as ENV vars in Travis CI. Travis will use these keys to deploy the application to EB.
 - 
 
+
+
+Finishing THoughts
+ - Beanstalk lets you deploy a containerized app or multi-containerized app and scale it based on need.
+ - Dockerizing all your services allows you to push up all your services, EB will just accept it and run it as you define it through Docker. 
+    - This is better in comparison to having to set up servers for each service and configure each separately. 
+ - In DEV, you run Postgres and Redis in docker containers locally through docker-compose. In PROD - you don't deploy docker containers for these services.
+    - Services like Postgres (DB) and Redis (Caching) are offered through AWS services (RDS and ElastiCache). 
+    - Utilize ENV variables in your source code so that you can easily connect to whatever service you want in dev/prod later. 
+    - Setting ENV vars in the AWS Elastic Beanstalk instance you create lets you swap services for DB/Caching (Postgres and Redis) without touching any source code. 
+ - In DEV, docker-compose handles all networking between services. AWS makes use of "security groups" and rules to explicitly define networking between services. 
+ - 
+
+
+ Bugs encountered:
+  - I couldn't push my docker images from the Travis pipeline even though I was logged in to Docker in the Travis pipeline.
+    Because I miswrote my dockerID for my docker images in the travis.yml file. 
+    My DockerID is "sharadshekar", but I wrote "sharad-s" (my github id). 
+    this was because sharadshekar was not able to push an image tagged as "sharad-s/multi-docker" because he was not "sharad-s". 
+    changing the image tag to "sharadshekar/multi-docker" fixed this issue
+
+  - I couldnt succesfully deploy my app to Beanstalk 
+    Because I forgot to set a service as "essential" in Dockerrun.aws.json.
+    My error string was "Service:AmazonECS, Code:ClientException, Message:Task definition doesn't have any essential container ..."
+    I set nginx service to "essential:true" in Dockerrun.aws.json
