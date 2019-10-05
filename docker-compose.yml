@@ -11,6 +11,8 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - '3050:80'
+    depends_on:
+      - client
   api:
     build:
       context: ./server
