@@ -82,3 +82,13 @@ Finishing THoughts
     Because I forgot to set a service as "essential" in Dockerrun.aws.json.
     My error string was "Service:AmazonECS, Code:ClientException, Message:Task definition doesn't have any essential container ..."
     I set nginx service to "essential:true" in Dockerrun.aws.json
+
+
+
+
+K8S K8s K8s
+
+## ClusterIP Service?
+
+ - What is clusterIP 
+ 

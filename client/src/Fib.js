@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
 
+import isEmpty from "./isEmpty";
+
 class Fib extends Component {
   state = {
     seenIndexes: [],
@@ -8,32 +10,13 @@ class Fib extends Component {
     index: ""
   };
 
-  componentDidMount() {
-    this.fetchValues();
-    this.fetchIndexes();
+  async componentDidMount() {
+    await this.fetchValues();
+    await this.fetchIndexes();
   }
 
-  async fetchValues() {
-    try {
-      const values = await axios.get("/api/values/current");
-      this.setState({ values: values.data });
-    } catch (err) {
-      console.log("Couldn't fetch values")
-    }
 
-  }
-
-  async fetchIndexes() {
-    try {
-      const seenIndexes = await axios.get("/api/values/all");
-      this.setState({
-        seenIndexes: seenIndexes.data
-      });
-    } catch (err) {
-      console.log("Couldn't fetch values")
-    }
-  
-  }
+ 
 
   handleSubmit = async event => {
     event.preventDefault();
@@ -50,15 +33,34 @@ class Fib extends Component {
     this.setState({ index: "" });
   };
 
+  // PG
   renderSeenIndexes() {
-    if (this.state.seenIndexes.length > 0) {
+    const { seenIndexes } = this.state;
+    if (!isEmpty(seenIndexes)) {
       return this.state.seenIndexes.map(({ number }) => number).join(", ");
     }
-    return null
+    return null;
   }
 
-  renderValues() {
+   // PG
+   async fetchIndexes() {
+    try {
+      const seenIndexes = await axios.get("/api/values/all");
+      this.setState(
+        {
+          seenIndexes: seenIndexes.data
+        },
+        () => {
+          console.log("fetchIndexes: seenIndexes", seenIndexes.data);
+        }
+      );
+    } catch (err) {
+      console.log("Couldn't fetch values");
+    }
+  }
 
+  // REDIS
+  renderValues() {
     const entries = [];
 
     for (let key in this.state.values) {
@@ -68,8 +70,20 @@ class Fib extends Component {
         </div>
       );
     }
-
     return entries;
+  }
+
+
+  // REDIS
+  async fetchValues() {
+    try {
+      const values = await axios.get("/api/values/current");
+      this.setState({ values: values.data }, () => {
+        console.log("fetchValues: values", values.data);
+      });
+    } catch (err) {
+      console.log("Couldn't fetch values");
+    }
   }
 
   render() {
@@ -83,10 +97,11 @@ class Fib extends Component {
           />
           <button>Submit</button>
         </form>
-
+        {/* PG */}
         <h3>Indexes I have seen:</h3>
         {this.renderSeenIndexes()}
 
+        {/* REDIS */}
         <h3>Calculated Values:</h3>
         {this.renderValues()}
       </div>
